@@ -2,6 +2,8 @@
 
 <!DOCTYPE html>
 <html lang="en">
+    <!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -1424,6 +1426,14 @@ const supabase = supabase.createClient(
   "YOUR_SUPABASE_ANON_KEY"
 );
 </script>
+/***** SUPABASE INIT *****/
+const SUPABASE_URL = "PASTE_YOUR_URL_HERE";
+const SUPABASE_ANON_KEY = "PASTE_YOUR_KEY_HERE";
+
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
 
         /***** GAME STATE *****/
         let players = [];
@@ -2107,50 +2117,66 @@ const supabase = supabase.createClient(
         }
 
         // Account functions
-        async function handleLogin() {
-            const username = document.getElementById('loginUsername').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            
-            if (!username || !password) {
-                alert('Please enter both username and password');
-                return;
-            }
-            
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: `${username}@dozon.xyz`,
-                password: password,
-            });
-
-            if (error) {
-                alert('Login failed: ' + error.message);
-                return;
-            }
-            
-            currentUser = data.user;
-            await loadUserData();
-            alert(`Welcome back, ${username}!`);
-            switchPanel('profile');
-        }
-
         async function handleRegister() {
-            const username = document.getElementById('registerUsername').value.trim();
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('registerConfirmPassword').value;
-            
-            if (!username || !password) {
-                alert('Please enter both username and password');
-                return;
-            }
-            
-            if (password !== confirmPassword) {
-                alert('Passwords do not match');
-                return;
-            }
-            
-            if (password.length < 6) {
-                alert('Password must be at least 6 characters long');
-                return;
-            }
+  const username = document.getElementById("registerUsername").value.trim();
+  const password = document.getElementById("registerPassword").value;
+  const confirm = document.getElementById("registerConfirmPassword").value;
+
+  if (!username || !password) {
+    alert("Username & password required");
+    return;
+  }
+
+  if (password !== confirm) {
+    alert("Passwords do not match");
+    return;
+  }
+
+  const { data, error } = await supabase.auth.signUp({
+    email: `${username}@dozon.xyz`,
+    password
+  });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  await supabase.from("profiles").insert({
+    id: data.user.id,
+    username
+  });
+
+  currentUser = data.user;
+  alert("Account created. Please login.");
+}
+async function handleLogin() {
+  const username = document.getElementById("loginUsername").value.trim();
+  const password = document.getElementById("loginPassword").value;
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: `${username}@dozon.xyz`,
+    password
+  });
+
+  if (error) {
+    alert("Invalid login");
+    return;
+  }
+
+  currentUser = data.user;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", currentUser.id)
+    .single();
+
+  userPaid = profile.paid;
+  updateGameAccess();
+  switchPanel("profile");
+}
+
             
             // Check if username exists
             const { data: existingUser } = await supabase
