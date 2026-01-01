@@ -1,0 +1,2384 @@
+<!-- IPNOTEC GAME v1.0.0 | PROD FREEZE | DO NOT MODIFY WITHOUT VERSION BUMP -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IPNOTEC | DOZON.XYZ Game Arena</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <style>
+        :root {
+            /* DOZON Color Scheme */
+            --dozon-green: #00FF00;
+            --xyz-violet: #8F00FF;
+            --primary: #8F00FF;
+            --secondary: #404040;
+            --accent: #00FF00;
+            --white: #FFFFFF;
+            --black: #000000;
+            --darkgrey: #1A1A1A;
+            --mediumgrey: #333333;
+            --lightgrey: #C0C0C0;
+            --glass: rgba(255, 255, 255, 0.08);
+            --glow-color: rgba(255, 255, 255, 0.3);
+            
+            /* Rose Gold Theme */
+            --rose-gold: #8A2BE2;
+            --rose-gold-light: #B873FF;
+            --rose-gold-dark: #6B00B3;
+            --dark-green: #011A10;
+            --darker-green: #001009;
+            --darkest-green: #000705;
+            --grid-color: rgba(138, 43, 226, 0.1);
+            --pc-bezel: #111111;
+            --active-color: #8A2BE2;
+            
+            /* IPNOTEC Frame */
+            --bg-color: #000000;
+            --device-body: rgba(10, 10, 15, 0.95);
+            --screen-bg: #000000;
+            --electric-violet: #8F00FF;
+            --stellar-white: #FFFFFF;
+            --danger-red: #FF1A1A;
+            --frame-glow: #333344;
+            --electric-blue: #00B0F0;
+            --electric-orange: #FF6900;
+            --neon-grey: #B0B0C0;
+            --tron-blue: #00F0FF;
+            
+            /* Fonts */
+            --font-main: 'IBM Plex Mono', monospace;
+            --font-futuristic: 'Orbitron', sans-serif;
+            
+            /* Effects */
+            --neon-glow: 0 0 20px currentColor;
+            --transition: all 0.3s ease;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            font-family: 'IBM Plex Mono', monospace; 
+        }
+
+        body {
+            margin: 0; 
+            padding: 0;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(0, 255, 0, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(143, 0, 255, 0.1) 0%, transparent 40%);
+            height: 100vh;
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            overflow: hidden; 
+            color: var(--stellar-white);
+            backdrop-filter: blur(2px);
+        }
+
+        /* --- ANIMATED BACKGROUND --- */
+        #canvas-bg {
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%;
+            z-index: 0; 
+            opacity: 0.4; 
+            pointer-events: none;
+        }
+
+        /* --- MAIN DEVICE FRAME --- */
+        .ecosystem-device {
+            width: 500px;
+            height: 810px;
+            max-width: 95vw;
+            max-height: 95vh;
+            background: linear-gradient(145deg, rgba(10, 10, 15, 0.95), rgba(20, 20, 30, 0.95));
+            border-radius: 30px;
+            position: relative;
+            box-shadow: 
+                0 0 40px rgba(0, 255, 0, 0.4),
+                0 0 80px rgba(143, 0, 255, 0.2),
+                0 0 120px rgba(143, 0, 255, 0.1),
+                inset 0 0 20px rgba(255,255,255,0.05);
+            border: 2px solid var(--xyz-violet);
+            display: flex; 
+            flex-direction: column;
+            overflow: hidden; 
+            z-index: 10;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px);
+        }
+
+        /* --- POD HEADER --- */
+        .pod-header {
+            height: 100px;
+            background: linear-gradient(180deg, rgba(1, 26, 16, 0.95) 0%, rgba(0, 16, 9, 0.95) 100%);
+            position: relative;
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            backdrop-filter: blur(5px);
+        }
+
+        .pod-model-display {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .pod-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(1, 26, 16, 0.9);
+            border: 1px solid var(--dozon-green);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            position: relative;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.3);
+            backdrop-filter: blur(5px);
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 1px;
+            background: var(--dozon-green);
+            animation: dotPulse 1.5s infinite alternate;
+            box-shadow: 0 0 8px var(--dozon-green);
+        }
+
+        .dot:nth-child(2) {
+            animation-delay: 0.3s;
+            background: var(--xyz-violet);
+            box-shadow: 0 0 8px var(--xyz-violet);
+        }
+
+        @keyframes dotPulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .pod-status {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pod-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .dozon-text {
+            color: var(--dozon-green);
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.7);
+        }
+
+        .xyz-text {
+            color: var(--xyz-violet);
+            text-shadow: 0 0 10px rgba(143, 0, 255, 0.7);
+        }
+
+        .pod-subtitle {
+            font-size: 9px;
+            color: #B0B0C0;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
+        .pod-subtitle span {
+            color: var(--accent);
+            font-weight: 700;
+            text-shadow: 0 0 5px var(--accent);
+        }
+
+        /* --- LIVE STATS --- */
+        .live-stats {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+            position: absolute;
+            top: 15px;
+            right: 20px;
+        }
+
+        .stat-box {
+            text-align: right;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .stat-label {
+            font-size: 8px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            min-width: 45px;
+            text-align: right;
+        }
+
+        .stat-value {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--dozon-green);
+            font-family: 'Orbitron', sans-serif;
+            min-width: 45px;
+            text-align: right;
+            text-shadow: 0 0 8px var(--dozon-green);
+        }
+
+        /* --- MODE NAVIGATION --- */
+        .mode-nav {
+            display: flex;
+            background: rgba(1, 26, 16, 0.95);
+            border-bottom: 1px solid rgba(0, 255, 0, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .mode-tab {
+            flex: 1;
+            padding: 12px 5px;
+            text-align: center;
+            font-size: 9px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-bottom: 2px solid transparent;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .mode-tab.active {
+            color: var(--dozon-green);
+            border-color: var(--dozon-green);
+            background: rgba(0, 255, 0, 0.1);
+            font-weight: 700;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        .mode-tab.locked {
+            color: #666;
+            cursor: not-allowed;
+            position: relative;
+        }
+
+        .mode-tab.locked::after {
+            content: '🔒';
+            font-size: 8px;
+            position: absolute;
+            top: 2px;
+            right: 2px;
+        }
+
+        .mode-tab i {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        /* --- CONTENT AREA --- */
+        .content-area {
+            flex-grow: 1;
+            background: rgba(0, 0, 0, 0.9);
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .content-panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 40px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            display: none;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.8);
+        }
+
+        .content-panel.active {
+            display: block;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- DOZON GAME STYLES --- */
+        
+        /* Cyber Grid Background */
+        .cyber-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.5;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .glow-line {
+            position: absolute;
+            top: 0;
+            left: 10%;
+            width: 80%;
+            height: 1px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                var(--xyz-violet), 
+                transparent);
+            filter: drop-shadow(0 0 5px var(--xyz-violet));
+            animation: scan 8s infinite linear;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        @keyframes scan {
+            0% { top: 0%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+        
+        /* Frame styling */
+        .frame {
+            width: 100%;
+            background: var(--darkgrey);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 15px 60px rgba(0,0,0,0.7);
+            border: 1px solid var(--secondary);
+            backdrop-filter: blur(10px) saturate(120%);
+            overflow: visible;
+            max-height: 100%;
+            overflow-y: auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        header.topbar{
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            margin-bottom:12px;
+        }
+        .brand{
+            font-weight:700;
+            letter-spacing:1px;
+            display:flex;
+            gap:14px;
+            align-items:center; 
+            font-family: var(--font-futuristic);
+        }
+        .brand .logo{
+            font-family: var(--font-futuristic);
+            padding: 8px 12px;
+            border-radius:10px;
+            background: var(--glass);
+            border: 1px solid var(--secondary);
+            font-size: 18px;
+            color: var(--dozon-green);
+        }
+
+        /* Hero section */
+        .hero {
+          display:flex;
+          flex-direction: column;
+          gap:15px;
+          margin-bottom:15px;
+        }
+        .become {
+            font-family: var(--font-futuristic);
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            line-height: 0.95;
+        }
+        .become .nothing {
+            opacity: 0.95;
+            color: var(--dozon-green);
+            text-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+        }
+        .become .blink-i{
+            font-size: 32px;
+            font-weight: 900;
+            cursor: pointer;
+            display: inline-block;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: var(--glass);
+            border: 1px dashed var(--secondary);
+            box-shadow: 0 0 36px 3px rgba(0, 255, 0, 0.1) inset;
+            transition: transform .18s;
+            color: var(--xyz-violet);
+        }
+        .blink-i .bar{display:inline-block;animation:blink 1s steps(1) infinite}
+        .blink-i:hover{transform:scale(1.05)}
+        @keyframes blink{0%{opacity:1}50%{opacity:0.08}100%{opacity:1}}
+
+        .mutedline{
+            font-size: 11px;
+            color: var(--lightgrey);
+            margin-top: 6px;
+            font-family: var(--font-main);
+        }
+
+        .fkey{
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: var(--mediumgrey);
+            border: 1px solid var(--secondary);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.6);
+        }
+        .fkey .kbd{
+            font-family: var(--font-main);
+            padding: 6px 10px;
+            border-radius: 6px;
+            background: var(--glass);
+            border: 1px solid var(--secondary);
+            font-size: 11px;
+        }
+
+        /* Panel styling */
+        .panel{
+            background: var(--darkgrey);
+            border-radius: 10px;
+            padding: 12px;
+            border: 1px solid var(--secondary);
+            box-shadow: 0 0 15px var(--glow-color);
+            margin-bottom: 12px;
+        }
+        .panel-title{
+            font-size: 16px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            font-family: var(--font-futuristic);
+            color: var(--dozon-green);
+        }
+        label{display:block;margin-bottom:5px;color:var(--lightgrey);font-size:11px; font-family: var(--font-main);}
+
+        /* Form elements */
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid var(--secondary);
+            background: var(--mediumgrey);
+            color: var(--white);
+            font-size: 11px;
+            outline: none;
+            font-family: var(--font-main);
+            margin-bottom: 8px;
+        }
+        input:focus, select:focus, textarea:focus {
+            box-shadow: 0 0 8px rgba(0, 255, 0, 0.2);
+            border-color: var(--dozon-green);
+        }
+
+        .btn{
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 11px;
+            font-family: var(--font-main);
+            text-transform: uppercase;
+            transition: var(--transition);
+            margin: 3px;
+        }
+        .btn.primary{
+            background: linear-gradient(90deg, var(--xyz-violet), var(--dozon-green));
+            color: var(--black);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+        }
+        .btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px var(--dozon-green);
+        }
+        .btn.ghost{
+            background: transparent;
+            border: 1px solid var(--secondary);
+            color: var(--white);
+        }
+        .btn.ghost:hover {
+            background: var(--glass);
+            border-color: var(--white);
+        }
+        .btn.locked {
+            background: var(--mediumgrey);
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .controls{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-start;margin-top:8px}
+
+        /* Player list */
+        .player-list{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:8px}
+        
+        .player-card{
+            padding: 8px;
+            border-radius: 6px;
+            background: var(--mediumgrey);
+            border: 1px solid var(--secondary);
+            font-size: 10px;
+        }
+        .player-name{font-weight:800;font-size:12px;margin-bottom:4px; font-family: var(--font-main);}
+        .player-points{font-weight:900;color:var(--dozon-green);font-size:12px}
+
+        /* Scene container */
+        .scene-container{
+            margin-top: 8px;
+            background: var(--darker-green);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--secondary);
+        }
+        .scene-title{font-size:14px;font-weight:800;margin-bottom:6px; font-family: var(--font-main); color: var(--xyz-violet);}
+        .scene-content{
+            min-height: 70px;
+            padding: 8px;
+            border-radius: 6px;
+            background: rgba(0,0,0,0.25);
+            font-size: 11px;
+            border: 1px solid var(--secondary);
+        }
+        .action-text{padding:6px;border-radius:6px;margin-bottom:6px;font-size:11px}
+        .blue-text{background:rgba(0, 255, 255, 0.1);color:var(--dozon-green);border-left:4px solid var(--dozon-green)}
+        .pink-text{background:rgba(255, 77, 166, 0.1);color:var(--rose-gold-light);border-left:4px solid var(--rose-gold-light)}
+
+        .timer{
+            font-size: 24px;
+            font-weight: 900;
+            text-align: center;
+            margin: 10px 0;
+            color: var(--xyz-violet);
+            font-family: var(--font-main);
+        }
+
+        .points-table{width:100%;border-collapse:collapse;margin-top:8px;background:transparent; font-size: 10px;}
+        .points-table th{padding:6px;text-align:left;color:var(--lightgrey);font-size:10px; font-family: var(--font-main);}
+        .points-table td{padding:6px;border-top:1px solid var(--secondary);font-size:10px}
+
+        /* Game grid */
+        .game-shell{display:block;margin-top:15px;gap:12px}
+        .game-grid{display:grid;grid-template-columns:1fr;gap:12px}
+
+        /* Account section */
+        .account-section {
+            display: block;
+            margin-top: 12px;
+        }
+        
+        .rules-section {
+            display: block;
+            margin-top: 12px;
+        }
+        
+        .profile-section {
+            display: block;
+            margin-top: 12px;
+        }
+        
+        .my-dozon-section {
+            display: block;
+            margin-top: 12px;
+        }
+        
+        .group-dashboard-section {
+            display: block;
+            margin-top: 12px;
+        }
+        
+        .create-group-section {
+            display: block;
+            margin-top: 12px;
+        }
+        
+        .payment-section {
+            display: block;
+            margin-top: 12px;
+        }
+        
+        .payment-info {
+            background: var(--darker-green);
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--secondary);
+            margin-bottom: 10px;
+        }
+        
+        .payment-amount {
+            font-size: 18px;
+            font-weight: 900;
+            color: var(--dozon-green);
+            text-align: center;
+            margin: 6px 0;
+        }
+        
+        .payment-features {
+            margin: 10px 0;
+        }
+        
+        .payment-features li {
+            margin-bottom: 5px;
+            padding-left: 14px;
+            position: relative;
+            font-size: 10px;
+        }
+        
+        .payment-features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--dozon-green);
+        }
+        
+        /* Progress Steps */
+        .progress-steps {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+            position: relative;
+        }
+        
+        .progress-steps:before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--secondary);
+            z-index: 1;
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .step-number {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--mediumgrey);
+            border: 2px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 4px;
+            font-weight: bold;
+            font-size: 10px;
+        }
+        
+        .step.active .step-number {
+            background: var(--dozon-green);
+            border-color: var(--dozon-green);
+            color: var(--black);
+        }
+        
+        .step.locked .step-number {
+            background: var(--mediumgrey);
+            border-color: #666;
+            color: #666;
+        }
+        
+        .step-label {
+            font-size: 9px;
+            text-align: center;
+        }
+
+        /* Security indicators */
+        .security-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid var(--dozon-green);
+            font-size: 9px;
+            margin-left: 8px;
+        }
+        
+        .security-badge i {
+            color: var(--dozon-green);
+        }
+        
+        /* Status indicators */
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        
+        .status-online {
+            background-color: var(--dozon-green);
+            box-shadow: 0 0 8px var(--dozon-green);
+        }
+        
+        .status-offline {
+            background-color: var(--lightgrey);
+        }
+
+        /* Helpful small text */
+        .small-muted{font-size:9px;color:var(--lightgrey);margin-top:5px}
+
+        /* --- STATUS BAR (FIXED FOOTER) --- */
+        .status-bar {
+            height: 35px;
+            min-height: 35px;
+            background: rgba(1, 26, 16, 0.95);
+            border-top: 1px solid rgba(0, 255, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            font-size: 9px;
+            color: #FFFFFF;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .system-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--dozon-green);
+            box-shadow: 0 0 10px var(--dozon-green);
+            animation: blink 2s infinite;
+            border-radius: 2px !important;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        #liveTime {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            letter-spacing: 1px;
+        }
+
+        /* --- TRON GRID EFFECT --- */
+        .tron-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 0, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.3;
+        }
+
+        /* Modal styles */
+        .modal { 
+            display:none; 
+            position:fixed; 
+            inset:0; 
+            z-index:9999; 
+            align-items:center; 
+            justify-content:center; 
+            background:rgba(0,0,0,0.7); 
+            padding:15px; 
+            backdrop-filter: blur(5px);
+        }
+        .modal .box{
+            background: var(--darkgrey);
+            padding: 12px;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid var(--dozon-green);
+            box-shadow: 0 0 25px var(--dozon-green);
+        }
+        .modal h3{font-size:16px;margin-bottom:8px; font-family: var(--font-futuristic); color: var(--dozon-green);}
+        .choice-row{
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: space-between;
+            padding: 6px;
+            border-radius: 6px;
+            background: var(--mediumgrey);
+            margin-bottom: 6px;
+            font-size: 11px;
+        }
+        .choice-row label{font-weight:700; font-family: var(--font-main);}
+
+        /* Payment locked message */
+        .locked-message {
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid var(--danger-red);
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 600px) {
+            .ecosystem-device {
+                width: 100%;
+                height: 100%;
+                max-width: 100%;
+                max-height: 100%;
+                border-radius: 0;
+            }
+            
+            .pod-header {
+                height: 80px;
+                padding: 10px 15px;
+            }
+            
+            .pod-title {
+                font-size: 14px;
+            }
+            
+            .mode-nav {
+                flex-wrap: wrap;
+            }
+            
+            .mode-tab {
+                min-width: 80px;
+                padding: 8px 3px;
+                font-size: 8px;
+            }
+            
+            .mode-tab i {
+                font-size: 10px;
+            }
+            
+            .content-panel {
+                padding: 15px;
+            }
+            
+            .become {
+                font-size: 22px;
+            }
+            
+            .become .blink-i {
+                font-size: 26px;
+            }
+            
+            .player-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <canvas id="canvas-bg"></canvas>
+
+    <!-- Main Device -->
+    <div class="ecosystem-device">
+        <!-- Tron Grid Effect -->
+        <div class="tron-grid"></div>
+        
+        <!-- DOZON Cyber Grid -->
+        <div class="cyber-grid"></div>
+        <div class="glow-line"></div>
+        <div class="glow-line" style="left: 20%; width: 60%; animation-delay: -2s"></div>
+        
+        <!-- Pod Header -->
+        <div class="pod-header">
+            <div class="pod-model-display">
+                <div class="pod-icon">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+                <div class="pod-status">
+                    <div class="pod-title">
+                        <span class="dozon-text">DOZON</span><span class="xyz-text">.XYZ</span>
+                    </div>
+                    <div class="pod-subtitle">
+                        <span>S</span>ecure <span>G</span>ame <span>A</span>rena
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Live Stats -->
+            <div class="live-stats">
+                <div class="stat-box">
+                    <div class="stat-label">Players</div>
+                    <div class="stat-value" id="livePlayers">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Scenes</div>
+                    <div class="stat-value" id="liveScenes">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">₹ Paid</div>
+                    <div class="stat-value" id="livePaid">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="mode-nav">
+            <div class="mode-tab active" onclick="switchPanel('welcome')">
+                <i class="fas fa-home"></i>
+                Welcome
+            </div>
+            <div class="mode-tab" onclick="switchPanel('account')">
+                <i class="fas fa-user"></i>
+                Account
+            </div>
+            <div class="mode-tab" onclick="switchPanel('profile')">
+                <i class="fas fa-id-card"></i>
+                Profile
+            </div>
+            <div class="mode-tab locked" id="gameTab" onclick="checkPaymentBeforeGame()">
+                <i class="fas fa-gamepad"></i>
+                Game
+            </div>
+            <div class="mode-tab" onclick="switchPanel('payment')">
+                <i class="fas fa-credit-card"></i>
+                Payment
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Welcome Panel -->
+            <div class="content-panel active" id="welcomePanel">
+                <div class="frame">
+                    <header class="topbar">
+                        <div class="brand">
+                            <div class="logo">DO</div>
+                            <div style="color:var(--lightgrey);font-size:11px">DOZON.XYZ</div>
+                            <div class="security-badge">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>SECURE</span>
+                            </div>
+                        </div>
+                        <div class="fkey" title="Reset">
+                            <div class="kbd">F11</div>
+                            <div style="font-size:11px;color:var(--lightgrey)">RESET</div>
+                            <button class="btn ghost" id="globalReset" style="margin-left:8px">RESET</button>
+                        </div>
+                    </header>
+
+                    <div class="hero">
+                        <div>
+                            <div class="become">
+                                <div class="nothing">XPERIENCE</div>
+                                <div class="nothing">REAL</div>
+                                <div class="blink-i" id="blinkI" onclick="switchPanel('account')"><span class="bar">.XYZ</span></div>
+                            </div>
+                            <div class="mutedline">
+                                <span class="status-indicator status-online"></span>
+                                SAFE • SECURE • SELECTIVE
+                            </div>
+                            <div class="mutedline" style="margin-top: 10px;">
+                                <strong>SAFE:</strong> No personal data collection<br>
+                                <strong>SECURE:</strong> Encrypted session • No data stored • Browser-based security<br>
+                                <strong>SELECTIVE:</strong> You choose your tribe without external influence
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 15px;">
+                            <div class="panel">
+                                <div style="font-weight:800;font-size:13px;color:var(--lightgrey)">Quick Start</div>
+                                <div style="margin-top:8px">
+                                    <div class="small-muted">1. Create Account → Accept Rules</div>
+                                    <div class="small-muted">2. Complete Profile Setup</div>
+                                    <div class="small-muted">3. Make Payment (₹969 one-time fee)</div>
+                                    <div class="small-muted">4. UNLOCK GAME ACCESS</div>
+                                    <div class="small-muted">5. Add players, generate scene, PLAY!</div>
+                                </div>
+                                <div style="margin-top:12px" class="actions">
+                                    <button class="btn primary" onclick="switchPanel('account')">Begin Setup →</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Steps -->
+                    <div class="progress-steps" id="progressSteps">
+                        <div class="step active" id="step1">
+                            <div class="step-number">1</div>
+                            <div class="step-label">Account</div>
+                        </div>
+                        <div class="step" id="step2">
+                            <div class="step-number">2</div>
+                            <div class="step-label">Profile</div>
+                        </div>
+                        <div class="step" id="step3">
+                            <div class="step-number">3</div>
+                            <div class="step-label">Payment</div>
+                        </div>
+                        <div class="step locked" id="step4">
+                            <div class="step-number">4</div>
+                            <div class="step-label">Game</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Panel -->
+            <div class="content-panel" id="accountPanel">
+                <div class="frame">
+                    <div class="account-section">
+                        <div class="panel">
+                            <div class="panel-title">Account Setup</div>
+                            
+                            <div id="loginForm">
+                                <label for="loginUsername">Username</label>
+                                <input type="text" id="loginUsername" placeholder="Enter your username">
+                                
+                                <label for="loginPassword">Password</label>
+                                <input type="password" id="loginPassword" placeholder="Enter your password">
+                                
+                                <div class="controls">
+                                    <button class="btn primary" id="loginBtn">Login</button>
+                                    <button class="btn ghost" id="showRegisterBtn">Create Account</button>
+                                </div>
+                            </div>
+                            
+                            <div id="registerForm" style="display:none">
+                                <label for="registerUsername">Username</label>
+                                <input type="text" id="registerUsername" placeholder="Choose a username">
+                                
+                                <label for="registerPassword">Password</label>
+                                <input type="password" id="registerPassword" placeholder="Create a secure password">
+                                
+                                <label for="registerConfirmPassword">Confirm Password</label>
+                                <input type="password" id="registerConfirmPassword" placeholder="Confirm your password">
+                                
+                                <div class="controls">
+                                    <button class="btn primary" id="registerBtn">Create Account</button>
+                                    <button class="btn ghost" id="showLoginBtn">Back to Login</button>
+                                </div>
+                            </div>
+                            
+                            <div class="small-muted">
+                                <i class="fas fa-lock"></i> All activities happen on a remote server. Nothing is stored on your local device.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Rules Section -->
+                    <div class="rules-section" style="margin-top: 15px;">
+                        <div class="panel">
+                            <div class="panel-title">Rules & Guidelines</div>
+                            
+                            <div style="max-height: 200px; overflow-y: auto; padding: 8px;">
+                                <h4 style="color: var(--dozon-green); margin-bottom: 10px;">Please read carefully:</h4>
+                                
+                                <div style="margin-bottom: 12px;">
+                                    <h5 style="color: var(--xyz-violet); margin-bottom: 5px;">1. Payment Required</h5>
+                                    <p style="font-size: 11px;">Game access requires a one-time payment of ₹969. This is a lifetime membership fee.</p>
+                                </div>
+                                
+                                <div style="margin-bottom: 12px;">
+                                    <h5 style="color: var(--xyz-violet); margin-bottom: 5px;">2. Data Security</h5>
+                                    <p style="font-size: 11px;">All activities happen on a secure remote server. No personal data is stored on your local device.</p>
+                                </div>
+                                
+                                <div style="margin-bottom: 12px;">
+                                    <h5 style="color: var(--xyz-violet); margin-bottom: 5px;">3. Session Privacy</h5>
+                                    <p style="font-size: 11px;">Your session is encrypted end-to-end. We don't collect or store personal information.</p>
+                                </div>
+                                
+                                <div style="margin-bottom: 12px;">
+                                    <h5 style="color: var(--xyz-violet); margin-bottom: 5px;">4. Community Guidelines</h5>
+                                    <p style="font-size: 11px;">Respect all participants. Harassment or inappropriate behavior will result in immediate removal.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="controls">
+                                <button class="btn primary" id="acceptRules">I Accept & Continue to Profile</button>
+                                <button class="btn ghost" onclick="switchPanel('welcome')">Back</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Panel -->
+            <div class="content-panel" id="profilePanel">
+                <div class="frame">
+                    <div class="profile-section">
+                        <div class="panel">
+                            <div class="panel-title">Create Your Persona</div>
+                            <p class="small-muted">Answering all questions is mandatory to create your profile.</p>
+                            
+                            <div style="max-height: 250px; overflow-y: auto; padding: 8px;">
+                                <label for="userGender">Gender</label>
+                                <select id="userGender">
+                                    <option value="">Select Gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+                                
+                                <label for="userAge">Age</label>
+                                <input type="text" id="userAge" placeholder="Enter your age">
+                                
+                                <label for="userBodyType">Body Type</label>
+                                <select id="userBodyType">
+                                    <option value="">Select Body Type</option>
+                                    <option value="slim">Slim</option>
+                                    <option value="athletic">Athletic</option>
+                                    <option value="average">Average</option>
+                                    <option value="muscular">Muscular</option>
+                                    <option value="curvy">Curvy</option>
+                                </select>
+                                
+                                <label for="userPurpose">Purpose</label>
+                                <select id="userPurpose">
+                                    <option value="">Select Purpose</option>
+                                    <option value="virtual">Virtual Experience</option>
+                                    <option value="real">Real Connection</option>
+                                    <option value="both">Both</option>
+                                </select>
+                                
+                                <label for="userInterests">Interests</label>
+                                <textarea id="userInterests" placeholder="Describe your interests, hobbies, etc." rows="2"></textarea>
+                                
+                                <label for="userPersonality">Personality Type</label>
+                                <select id="userPersonality">
+                                    <option value="">Select Personality Type</option>
+                                    <option value="introvert">Introvert</option>
+                                    <option value="extrovert">Extrovert</option>
+                                    <option value="ambivert">Ambivert</option>
+                                </select>
+                            </div>
+                            
+                            <div class="controls">
+                                <button class="btn primary" id="saveProfile">Save Profile & Continue to Payment</button>
+                                <button class="btn ghost" onclick="switchPanel('account')">Back</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Panel -->
+            <div class="content-panel" id="gamePanel">
+                <div class="frame">
+                    <div class="locked-message" id="gameLockedMessage" style="display: none;">
+                        <i class="fas fa-lock" style="color: var(--danger-red); margin-right: 8px;"></i>
+                        <strong>GAME ACCESS LOCKED</strong> - Complete payment to unlock game features
+                        <button class="btn primary" onclick="switchPanel('payment')" style="margin-left: 10px; padding: 6px 10px; font-size: 10px;">Go to Payment</button>
+                    </div>
+                    
+                    <div id="gameContent" style="display: none;">
+                        <div class="game-shell">
+                            <div class="game-grid">
+                                <div class="panel">
+                                    <div class="panel-title">Player Setup</div>
+
+                                    <label for="playerName">Your Name (U-ID)</label>
+                                    <input type="text" id="playerName" placeholder="Enter your unique name">
+
+                                    <label>Gender</label>
+                                    <div style="display:flex;gap:6px;margin-bottom:8px">
+                                        <button class="btn ghost genderBtn" data-gender="male">Male</button>
+                                        <button class="btn ghost genderBtn" data-gender="female">Female</button>
+                                        <button class="btn ghost genderBtn" data-gender="other">Other</button>
+                                    </div>
+                                    <input type="hidden" id="playerGender" value="male">
+
+                                    <label>Your 3 DO Actions</label>
+                                    <input type="text" id="do1" placeholder="Do action 1" />
+                                    <input type="text" id="do2" placeholder="Do action 2" />
+                                    <input type="text" id="do3" placeholder="Do action 3" />
+                                    <div class="controls">
+                                        <button class="btn ghost" id="randomDoBtn">Random DOs</button>
+                                    </div>
+
+                                    <label>Your 3 DON'T Rules</label>
+                                    <input type="text" id="dont1" placeholder="Don't rule 1" />
+                                    <input type="text" id="dont2" placeholder="Don't rule 2" />
+                                    <input type="text" id="dont3" placeholder="Don't rule 3" />
+                                    <div class="controls">
+                                        <button class="btn ghost" id="randomDontBtn">Random DON'Ts</button>
+                                    </div>
+
+                                    <div class="controls">
+                                        <button class="btn primary" id="saveBtn">Save Player</button>
+                                        <button class="btn ghost" id="resetBtn">Reset Game</button>
+                                    </div>
+
+                                    <div style="margin-top:12px">
+                                        <label>Players (Max: 12)</label>
+                                        <div class="player-list" id="playerList"></div>
+                                    </div>
+                                </div>
+
+                                <div class="panel">
+                                    <div class="panel-title">Game Arena</div>
+
+                                    <label for="participants">Number of Participants</label>
+                                    <select id="participants">
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4" selected>4</option>
+                                        <option value="6">6</option>
+                                        <option value="8">8</option>
+                                        <option value="12">12</option>
+                                    </select>
+
+                                    <label>Scene Duration (seconds)</label>
+                                    <input type="number" id="sceneDuration" value="180" min="30" max="600">
+
+                                    <div class="controls">
+                                        <button class="btn primary" id="generateBtn">Generate Scene</button>
+                                        <button class="btn ghost" id="openAssignBtn">Assign Act/Watch</button>
+                                        <button class="btn primary" id="startBtn">Start Scene</button>
+                                        <button class="btn ghost" id="endBtn">End Scene</button>
+                                    </div>
+
+                                    <div class="scene-container">
+                                        <div class="scene-title">Current Scene</div>
+                                        <div class="scene-content" id="sceneContent"><p style="margin:0">No active scene. Generate a scene to begin.</p></div>
+
+                                        <div class="timer" id="timer">03:00</div>
+
+                                        <table class="points-table">
+                                            <thead>
+                                                <tr><th>Player</th><th>Gender</th><th>Points</th><th>Status</th></tr>
+                                            </thead>
+                                            <tbody id="pointsTableBody"></tbody>
+                                        </table>
+                                        <div class="small-muted">Note: ACT = <strong>10 pts</strong>, WATCH = <strong>1 pt</strong>. Assign choices before PLAY.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Panel -->
+            <div class="content-panel" id="paymentPanel">
+                <div class="frame">
+                    <div class="payment-section">
+                        <div class="panel">
+                            <div class="panel-title">Secure Payment Gateway</div>
+                            
+                            <div class="payment-info">
+                                <div style="text-align:center; margin-bottom:10px">
+                                    <div style="font-size:11px;color:var(--lightgrey)">One-Time Membership Fee</div>
+                                    <div class="payment-amount">₹ 969</div>
+                                    <div style="font-size:11px;color:var(--lightgrey)">Lifetime Access • Required for Game</div>
+                                </div>
+                                
+                                <div class="payment-features">
+                                    <ul style="list-style-type:none; padding-left: 0;">
+                                        <li>Unlock full game access</li>
+                                        <li>Join games with 11 other players</li>
+                                        <li>Create and customize player profiles</li>
+                                        <li>Generate unlimited scenes</li>
+                                        <li>Secure, browser-based encryption</li>
+                                        <li>No data stored on servers</li>
+                                        <li>Lifetime membership - no recurring fees</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <label for="paymentMethod">Payment Method</label>
+                            <select id="paymentMethod">
+                                <option value="upi">UPI Payment</option>
+                                <option value="card">Credit/Debit Card</option>
+                                <option value="netbanking">Net Banking</option>
+                                <option value="wallet">Digital Wallet</option>
+                            </select>
+                            
+                            <div id="paymentDetails">
+                                <div style="margin-top:10px">
+                                    <label for="upiId">UPI ID</label>
+                                    <input type="text" id="upiId" placeholder="yourname@upi">
+                                </div>
+                            </div>
+                            
+                            <div class="controls">
+                                <button class="btn primary" id="processPayment">Process Payment (₹969)</button>
+                                <button class="btn ghost" onclick="switchPanel('profile')">Back</button>
+                            </div>
+                            
+                            <div class="small-muted" style="text-align:center">
+                                <i class="fas fa-lock"></i> This is a secure payment. Your financial details are encrypted.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="system-status">
+                <div class="status-dot"></div>
+                <span>DOZON.XYZ: <span id="gameStatus">SETUP REQUIRED</span></span>
+            </div>
+            <div id="liveTime">00:00:00</div>
+            <div>PLAYERS: <span id="playerCount">0</span> / 12</div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="assignModal">
+        <div class="box">
+            <h3>Assign: Act or Watch</h3>
+            <p class="small-muted">Choose for each participant whether they will ACT (10 pts) or WATCH (1 pt). Defaults to WATCH.</p>
+            <div id="assignList" style="margin-top:10px;max-height:250px;overflow:auto"></div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+                <button class="btn ghost" id="assignCancel">Cancel</button>
+                <button class="btn primary" id="assignConfirm">Confirm & Play</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="resultModal">
+        <div class="box">
+            <h3>Scene Complete</h3>
+            <div id="resultText"></div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+                <button class="btn primary" id="resultClose">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="paymentSuccessModal">
+        <div class="box">
+            <h3>Payment Successful!</h3>
+            <div style="text-align:center; padding:15px 0">
+                <i class="fas fa-check-circle" style="font-size:36px; color:var(--dozon-green); margin-bottom:12px"></i>
+                <p>Your payment of ₹ 969 has been processed successfully.</p>
+                <p><strong>Game access is now UNLOCKED!</strong></p>
+                <p>You now have full access to the DOZON.XYZ Game Arena.</p>
+            </div>
+            <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+                <button class="btn primary" id="paymentSuccessClose">Start Playing</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://yiswabyzohapwyddiufg.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_dBQgmJYXlzpTL7z2-Ai6Pw_yh79rxO1';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        /***** GAME STATE *****/
+        let players = [];
+        let currentScene = null;
+        let timerInterval = null;
+        let timeRemaining = 180;
+        let currentUser = null;
+        let userPaid = false; // Payment status
+        let userProfile = null;
+        let totalPlayers = 0;
+        let totalScenes = 0;
+        let totalPaid = 0;
+
+        // Random DOs and DON'Ts
+        const randomDOs = [
+            "Share a short confident story about your proudest moment",
+            "Perform an expressive gesture to show leadership",
+            "Deliver a quick 30-second pitch about a dream product",
+            "Lead a group cheer for 20 seconds",
+            "Describe your most inspiring idea in 2 sentences",
+            "Act out a heroic entrance",
+            "Recite a short motivational line",
+            "Show a memorable facial expression for a scene"
+        ];
+
+        const randomDONTs = [
+            "Don't touch anyone without explicit permission",
+            "Don't use explicit sexual language",
+            "Don't remove any clothing",
+            "Don't make anyone feel uncomfortable",
+            "Don't pressure anyone into doing something",
+            "Don't break character during the scene",
+            "Don't share personal information that's too private",
+            "Don't make inappropriate physical contact"
+        ];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initCanvas();
+            updateTime();
+            updateStats();
+            initializeGame();
+            
+            // Set initial gender button
+            document.querySelector('.genderBtn[data-gender="male"]').classList.add('selected');
+            
+            // Initialize game panel based on payment status
+            updateGameAccess();
+            
+            // Check if user is already logged in
+            checkSession();
+        });
+
+        // Check Supabase session
+        async function checkSession() {
+            const { data } = await supabase.auth.getSession();
+            if (data.session) {
+                currentUser = data.session.user;
+                await loadUserData();
+            }
+        }
+
+        // Load user data from Supabase
+        async function loadUserData() {
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', currentUser.id)
+                .single();
+            
+            if (profile) {
+                userProfile = profile;
+                userPaid = profile.is_paid || false;
+                updateGameAccess();
+            }
+        }
+
+        // Update game access based on payment
+        function updateGameAccess() {
+            const gameTab = document.getElementById('gameTab');
+            const gameLockedMessage = document.getElementById('gameLockedMessage');
+            const gameContent = document.getElementById('gameContent');
+            const step4 = document.getElementById('step4');
+            
+            if (userPaid) {
+                // Unlock game
+                gameTab.classList.remove('locked');
+                gameTab.classList.add('active');
+                gameTab.onclick = () => switchPanel('game');
+                gameLockedMessage.style.display = 'none';
+                gameContent.style.display = 'block';
+                step4.classList.remove('locked');
+                step4.classList.add('active');
+                document.getElementById('gameStatus').textContent = 'READY';
+            } else {
+                // Lock game
+                gameTab.classList.add('locked');
+                gameTab.classList.remove('active');
+                gameLockedMessage.style.display = 'block';
+                gameContent.style.display = 'none';
+                step4.classList.add('locked');
+                step4.classList.remove('active');
+                document.getElementById('gameStatus').textContent = 'PAYMENT REQUIRED';
+            }
+        }
+
+        // Check payment before accessing game
+        function checkPaymentBeforeGame() {
+            if (!userPaid) {
+                alert('Payment Required: Please complete the payment of ₹969 to unlock game features.');
+                switchPanel('payment');
+                return false;
+            }
+            switchPanel('game');
+            return true;
+        }
+
+        // Panel switching
+        function switchPanel(panelId) {
+            // Update active tab
+            document.querySelectorAll('.mode-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Find and activate the clicked tab
+            document.querySelectorAll('.mode-tab').forEach(tab => {
+                if (tab.textContent.toLowerCase().includes(panelId.toLowerCase())) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            // Special handling for game tab
+            if (panelId === 'game' && !userPaid) {
+                panelId = 'payment';
+                document.getElementById('gameTab').classList.remove('active');
+                document.querySelector('.mode-tab[onclick*="payment"]').classList.add('active');
+            }
+            
+            // Update active panel
+            document.querySelectorAll('.content-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            
+            document.getElementById(panelId + 'Panel').classList.add('active');
+            
+            // Update progress steps
+            updateProgressSteps(panelId);
+        }
+
+        function updateProgressSteps(panelId) {
+            const steps = {
+                'welcome': 0,
+                'account': 0,
+                'profile': 1,
+                'payment': 2,
+                'game': 3
+            };
+            
+            const currentStep = steps[panelId] || 0;
+            
+            document.querySelectorAll('.step').forEach((step, index) => {
+                if (index <= currentStep) {
+                    step.classList.add('active');
+                    step.classList.remove('locked');
+                } else if (index === 3 && !userPaid) {
+                    // Game step is locked if not paid
+                    step.classList.remove('active');
+                    step.classList.add('locked');
+                } else {
+                    step.classList.remove('active');
+                    step.classList.remove('locked');
+                }
+            });
+        }
+
+        // Initialize game elements
+        function initializeGame() {
+            // Account elements
+            document.getElementById('loginBtn').addEventListener('click', handleLogin);
+            document.getElementById('registerBtn').addEventListener('click', handleRegister);
+            document.getElementById('showRegisterBtn').addEventListener('click', () => {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'block';
+            });
+            document.getElementById('showLoginBtn').addEventListener('click', () => {
+                document.getElementById('registerForm').style.display = 'none';
+                document.getElementById('loginForm').style.display = 'block';
+            });
+            document.getElementById('acceptRules').addEventListener('click', () => {
+                alert('Rules accepted! Creating your profile...');
+                switchPanel('profile');
+            });
+
+            // Profile elements
+            document.getElementById('saveProfile').addEventListener('click', async () => {
+                const gender = document.getElementById('userGender').value;
+                const age = document.getElementById('userAge').value;
+                const bodyType = document.getElementById('userBodyType').value;
+                const purpose = document.getElementById('userPurpose').value;
+                const interests = document.getElementById('userInterests').value;
+                const personality = document.getElementById('userPersonality').value;
+
+                if (!gender || !age || !bodyType || !purpose || !interests || !personality) {
+                    alert('Please fill all fields to create your profile');
+                    return;
+                }
+
+                // Save to Supabase if user is logged in
+                if (currentUser) {
+                    const { error } = await supabase
+                        .from('profiles')
+                        .update({
+                            gender: gender,
+                            age: age,
+                            body_type: bodyType,
+                            purpose: purpose,
+                            interests: interests,
+                            personality: personality
+                        })
+                        .eq('id', currentUser.id);
+
+                    if (error) {
+                        alert('Error saving profile: ' + error.message);
+                        return;
+                    }
+                }
+
+                userProfile = { gender, age, bodyType, purpose, interests, personality };
+                alert('Profile saved successfully! Proceeding to payment...');
+                switchPanel('payment');
+            });
+
+            // Payment elements
+            document.getElementById('paymentMethod').addEventListener('change', updatePaymentDetails);
+            document.getElementById('processPayment').addEventListener('click', processPayment);
+            document.getElementById('paymentSuccessClose').addEventListener('click', () => {
+                document.getElementById('paymentSuccessModal').style.display = 'none';
+                switchPanel('game');
+            });
+
+            // Initialize game elements if paid
+            if (userPaid) {
+                initializeGameElements();
+            }
+
+            // Initialize player list
+            renderPlayerList();
+            updatePointsTable();
+        }
+
+        // Initialize game elements after payment
+        function initializeGameElements() {
+            // Gender buttons
+            document.querySelectorAll('.genderBtn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.genderBtn').forEach(b => {
+                        b.classList.remove('selected');
+                        b.style.borderColor = '';
+                    });
+                    btn.classList.add('selected');
+                    btn.style.borderColor = 'var(--dozon-green)';
+                    document.getElementById('playerGender').value = btn.dataset.gender;
+                });
+            });
+
+            // Random buttons
+            document.getElementById('randomDoBtn').addEventListener('click', () => {
+                const sel = shuffle(randomDOs).slice(0, 3);
+                ['do1', 'do2', 'do3'].forEach((id, idx) => {
+                    document.getElementById(id).value = sel[idx] || '';
+                });
+            });
+
+            document.getElementById('randomDontBtn').addEventListener('click', () => {
+                const sel = shuffle(randomDONTs).slice(0, 3);
+                ['dont1', 'dont2', 'dont3'].forEach((id, idx) => {
+                    document.getElementById(id).value = sel[idx] || '';
+                });
+            });
+
+            // Save player
+            document.getElementById('saveBtn').addEventListener('click', savePlayer);
+
+            // Reset game
+            document.getElementById('resetBtn').addEventListener('click', resetGame);
+            document.getElementById('globalReset').addEventListener('click', showExitModal);
+
+            // Scene controls
+            document.getElementById('generateBtn').addEventListener('click', generateScene);
+            document.getElementById('openAssignBtn').addEventListener('click', openAssignForScene);
+            document.getElementById('startBtn').addEventListener('click', startScene);
+            document.getElementById('endBtn').addEventListener('click', endScene);
+
+            // Modal controls
+            document.getElementById('assignCancel').addEventListener('click', () => {
+                document.getElementById('assignModal').style.display = 'none';
+            });
+            document.getElementById('assignConfirm').addEventListener('click', assignConfirm);
+            document.getElementById('resultClose').addEventListener('click', () => {
+                document.getElementById('resultModal').style.display = 'none';
+            });
+        }
+
+        // Game functions
+        async function savePlayer() {
+            if (!userPaid) {
+                alert('Payment required to save players');
+                return;
+            }
+            
+            const name = document.getElementById('playerName').value.trim();
+            const gender = document.getElementById('playerGender').value;
+            
+            if (!name) {
+                alert('Please enter your name');
+                return;
+            }
+            
+            const doActions = ['do1', 'do2', 'do3'].map(id => document.getElementById(id).value.trim()).filter(x => x);
+            const dontRules = ['dont1', 'dont2', 'dont3'].map(id => document.getElementById(id).value.trim()).filter(x => x);
+            
+            const existingIndex = players.findIndex(p => p.name.toLowerCase() === name.toLowerCase());
+            
+            // Save to Supabase if user is logged in
+            if (currentUser) {
+                const playerData = {
+                    user_id: currentUser.id,
+                    name: name,
+                    gender: gender,
+                    do_actions: doActions,
+                    dont_rules: dontRules,
+                    points: 0
+                };
+                
+                if (existingIndex !== -1) {
+                    // Update existing player
+                    const { error } = await supabase
+                        .from('players')
+                        .update(playerData)
+                        .eq('id', players[existingIndex].id);
+                    
+                    if (!error) {
+                        players[existingIndex] = { ...players[existingIndex], ...playerData };
+                    }
+                } else {
+                    if (players.length >= 12) {
+                        alert('Maximum 12 players allowed');
+                        return;
+                    }
+                    
+                    const { data, error } = await supabase
+                        .from('players')
+                        .insert([playerData])
+                        .select();
+                    
+                    if (!error && data && data.length > 0) {
+                        players.push({ id: data[0].id, ...playerData });
+                        totalPlayers++;
+                        updateStats();
+                    }
+                }
+            } else {
+                // Local storage fallback
+                if (existingIndex !== -1) {
+                    players[existingIndex] = { 
+                        name, gender, doActions, dontRules, 
+                        points: players[existingIndex].points || 0, 
+                        performing: false 
+                    };
+                } else {
+                    if (players.length >= 12) {
+                        alert('Maximum 12 players allowed');
+                        return;
+                    }
+                    players.push({ name, gender, doActions, dontRules, points: 0, performing: false });
+                    totalPlayers++;
+                    updateStats();
+                }
+            }
+            
+            renderPlayerList();
+            updatePointsTable();
+            clearPlayerInputs();
+        }
+
+        function clearPlayerInputs() {
+            document.getElementById('playerName').value = '';
+            ['do1', 'do2', 'do3', 'dont1', 'dont2', 'dont3'].forEach(id => {
+                document.getElementById(id).value = '';
+            });
+        }
+
+        function renderPlayerList() {
+            const playerList = document.getElementById('playerList');
+            playerList.innerHTML = '';
+            
+            players.forEach(player => {
+                const div = document.createElement('div');
+                div.className = 'player-card';
+                div.innerHTML = `
+                    <div class="player-name">${escapeHtml(player.name)}</div>
+                    <div style="font-size:10px;color:var(--lightgrey)">${player.gender}</div>
+                    <div style="margin-top:6px;display:flex;justify-content:space-between;align-items:center">
+                        <div class="player-points">${player.points} pts</div>
+                        <button class="btn ghost" onclick="removePlayer('${escapeHtml(player.name)}')" style="padding:4px 8px;font-size:9px">Remove</button>
+                    </div>
+                `;
+                playerList.appendChild(div);
+            });
+            
+            // Fill empty slots
+            for (let i = players.length; i < 12; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'player-card';
+                empty.style.opacity = '0.3';
+                empty.innerHTML = `
+                    <div class="player-name">Empty Slot</div>
+                    <div style="font-size:10px;color:var(--lightgrey)">Available</div>
+                    <div style="margin-top:6px;color:var(--lightgrey)">0 pts</div>
+                `;
+                playerList.appendChild(empty);
+            }
+            
+            document.getElementById('playerCount').textContent = players.length;
+        }
+
+        async function removePlayer(name) {
+            const playerToRemove = players.find(p => p.name === name);
+            
+            if (playerToRemove && playerToRemove.id && currentUser) {
+                // Remove from Supabase
+                const { error } = await supabase
+                    .from('players')
+                    .delete()
+                    .eq('id', playerToRemove.id);
+                
+                if (error) {
+                    alert('Error removing player: ' + error.message);
+                    return;
+                }
+            }
+            
+            players = players.filter(p => p.name !== name);
+            renderPlayerList();
+            updatePointsTable();
+            updateStats();
+        }
+
+        function generateScene() {
+            if (!userPaid) {
+                alert('Payment required to generate scenes');
+                return;
+            }
+            
+            if (players.length < 2) {
+                alert('Need at least 2 players to generate a scene');
+                return;
+            }
+            
+            const numParticipants = parseInt(document.getElementById('participants').value);
+            const duration = parseInt(document.getElementById('sceneDuration').value) || 180;
+            
+            if (players.length < numParticipants) {
+                alert(`Not enough players for ${numParticipants} participants`);
+                return;
+            }
+            
+            const shuffled = shuffle(players).slice(0, numParticipants);
+            let html = `<p><strong>Participants:</strong> ${shuffled.map(p => escapeHtml(p.name)).join(', ')}</p>`;
+            
+            shuffled.forEach(player => {
+                const actionIndex = Math.floor(Math.random() * Math.max(1, player.doActions.length));
+                const action = player.doActions.length ? player.doActions[actionIndex] : 'Take a moment to introduce yourself confidently.';
+                html += `<div class="action-text blue-text"><strong>${escapeHtml(player.name)}</strong> will: ${escapeHtml(action)}</div>`;
+            });
+            
+            html += `<div style="margin-top:8px"><strong>Rules for scene:</strong></div>`;
+            shuffled.forEach(player => {
+                const ruleIndex = Math.floor(Math.random() * Math.max(1, player.dontRules.length));
+                const rule = player.dontRules.length ? player.dontRules[ruleIndex] : 'Respect boundaries and be kind.';
+                html += `<div class="action-text pink-text">${escapeHtml(rule)}</div>`;
+            });
+            
+            document.getElementById('sceneContent').innerHTML = html;
+            currentScene = { 
+                participants: shuffled.map(p => p.name), 
+                duration, 
+                assignments: {}, 
+                started: false 
+            };
+            timeRemaining = duration;
+            updateTimerDisplay();
+            totalScenes++;
+            updateStats();
+            
+            openAssignForScene();
+        }
+
+        function openAssignForScene() {
+            if (!currentScene) {
+                alert('No scene. Generate a scene first.');
+                return;
+            }
+            
+            const assignList = document.getElementById('assignList');
+            assignList.innerHTML = '';
+            
+            currentScene.participants.forEach(name => {
+                const row = document.createElement('div');
+                row.className = 'choice-row';
+                row.innerHTML = `
+                    <div style="display:flex;align-items:center;gap:8px">
+                        <div style="font-weight:800">${escapeHtml(name)}</div>
+                    </div>
+                    <div style="display:flex;gap:6px">
+                        <label><input type="radio" name="choice-${escapeHtml(name)}" value="act"> Act</label>
+                        <label><input type="radio" name="choice-${escapeHtml(name)}" value="watch" checked> Watch</label>
+                    </div>
+                `;
+                assignList.appendChild(row);
+            });
+            
+            document.getElementById('assignModal').style.display = 'flex';
+        }
+
+        function assignConfirm() {
+            const assignments = {};
+            currentScene.participants.forEach(name => {
+                const radio = document.querySelector(`input[name="choice-${name}"]:checked`);
+                assignments[name] = radio ? radio.value : 'watch';
+            });
+            
+            currentScene.assignments = assignments;
+            document.getElementById('assignModal').style.display = 'none';
+            
+            // Update performing flags
+            players.forEach(p => {
+                p.performing = currentScene.assignments[p.name] === 'act';
+            });
+            
+            startScene();
+        }
+
+        function startScene() {
+            if (!currentScene || !currentScene.assignments) {
+                alert('Please assign Act/Watch roles first.');
+                return;
+            }
+            
+            currentScene.started = true;
+            timeRemaining = currentScene.duration;
+            
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerDisplay();
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    endScene();
+                }
+            }, 1000);
+            
+            document.getElementById('gameStatus').textContent = 'PLAYING';
+            updateTimerDisplay();
+        }
+
+        async function endScene() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            
+            if (!currentScene || !currentScene.started) return;
+            
+            const summary = [];
+            currentScene.participants.forEach(name => {
+                const player = players.find(p => p.name === name);
+                if (!player) return;
+                
+                const choice = currentScene.assignments[name] || 'watch';
+                const points = choice === 'act' ? 10 : 1;
+                player.points += points;
+                player.performing = false;
+                summary.push({ name, choice, points });
+            });
+            
+            // Update points in Supabase
+            if (currentUser) {
+                for (const player of players) {
+                    if (player.id) {
+                        await supabase
+                            .from('players')
+                            .update({ points: player.points })
+                            .eq('id', player.id);
+                    }
+                }
+            }
+            
+            renderPlayerList();
+            updatePointsTable();
+            
+            // Show results
+            let resultHtml = '<div style="font-weight:800">Points awarded:</div><ul style="margin-top:8px;padding-left:0">';
+            summary.forEach(s => {
+                resultHtml += `<li style="margin-bottom:4px;background:var(--mediumgrey);padding:4px;">
+                    <strong>${escapeHtml(s.name)}</strong> — ${s.choice.toUpperCase()} → <strong style="color:var(--dozon-green)">${s.points} pts</strong>
+                </li>`;
+            });
+            resultHtml += '</ul>';
+            
+            document.getElementById('resultText').innerHTML = resultHtml;
+            document.getElementById('resultModal').style.display = 'flex';
+            
+            currentScene = null;
+            timeRemaining = 180;
+            updateTimerDisplay();
+            document.getElementById('gameStatus').textContent = 'SCENE COMPLETE';
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            document.getElementById('timer').textContent = 
+                `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeRemaining <= 30) {
+                document.getElementById('timer').style.color = 'var(--danger-red)';
+            } else {
+                document.getElementById('timer').style.color = 'var(--xyz-violet)';
+            }
+        }
+
+        function updatePointsTable() {
+            const tbody = document.getElementById('pointsTableBody');
+            tbody.innerHTML = '';
+            
+            const sorted = [...players].sort((a, b) => b.points - a.points);
+            
+            sorted.forEach(player => {
+                const row = document.createElement('tr');
+                const genderDisplay = player.gender === 'male' ? 'M' : player.gender === 'female' ? 'F' : 'O';
+                row.innerHTML = `
+                    <td>${escapeHtml(player.name)}</td>
+                    <td>${genderDisplay}</td>
+                    <td class="player-points">${player.points}</td>
+                    <td>${player.performing ? 'ACT' : '—'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+            
+            // Fill remaining rows
+            for (let i = sorted.length; i < 12; i++) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td style="opacity:0.5">-</td>
+                    <td style="opacity:0.5">-</td>
+                    <td style="opacity:0.5">0</td>
+                    <td style="opacity:0.5">-</td>
+                `;
+                tbody.appendChild(row);
+            }
+        }
+
+        function resetGame() {
+            if (!confirm('Reset game? All progress will be lost.')) return;
+            
+            players = [];
+            currentScene = null;
+            
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            
+            timeRemaining = 180;
+            updateTimerDisplay();
+            renderPlayerList();
+            updatePointsTable();
+            document.getElementById('sceneContent').innerHTML = '<p style="margin:0">No active scene. Generate a scene to begin.</p>';
+            document.getElementById('gameStatus').textContent = 'READY';
+        }
+
+        // Account functions
+        async function handleLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!username || !password) {
+                alert('Please enter both username and password');
+                return;
+            }
+            
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: `${username}@dozon.xyz`,
+                password: password,
+            });
+
+            if (error) {
+                alert('Login failed: ' + error.message);
+                return;
+            }
+            
+            currentUser = data.user;
+            await loadUserData();
+            alert(`Welcome back, ${username}!`);
+            switchPanel('profile');
+        }
+
+        async function handleRegister() {
+            const username = document.getElementById('registerUsername').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
+            if (!username || !password) {
+                alert('Please enter both username and password');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters long');
+                return;
+            }
+            
+            // Check if username exists
+            const { data: existingUser } = await supabase
+                .from('profiles')
+                .select('username')
+                .eq('username', username)
+                .single();
+
+            if (existingUser) {
+                alert('Username already taken!');
+                return;
+            }
+
+            // Create Auth User
+            const { data, error } = await supabase.auth.signUp({
+                email: `${username}@dozon.xyz`,
+                password: password,
+            });
+
+            if (error) {
+                alert('Registration failed: ' + error.message);
+                return;
+            }
+
+            // Create Profile Record
+            await supabase.from('profiles').insert([
+                { id: data.user.id, username: username, is_paid: false }
+            ]);
+
+            currentUser = data.user;
+            userProfile = { username: username, is_paid: false };
+            
+            alert(`Account created successfully! Welcome to DOZON.XYZ, ${username}!`);
+            
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'block';
+            
+            switchPanel('profile');
+        }
+
+        // Payment functions
+        function updatePaymentDetails() {
+            const method = document.getElementById('paymentMethod').value;
+            let html = '';
+            
+            if (method === 'upi') {
+                html = `
+                    <div style="margin-top:10px">
+                        <label for="upiId">UPI ID</label>
+                        <input type="text" id="upiId" placeholder="yourname@upi">
+                    </div>
+                `;
+            } else if (method === 'card') {
+                html = `
+                    <div style="margin-top:10px">
+                        <label for="cardNumber">Card Number</label>
+                        <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+                            <div>
+                                <label for="expiryDate">Expiry Date</label>
+                                <input type="text" id="expiryDate" placeholder="MM/YY">
+                            </div>
+                            <div>
+                                <label for="cvv">CVV</label>
+                                <input type="text" id="cvv" placeholder="123">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            document.getElementById('paymentDetails').innerHTML = html;
+        }
+
+        function processPayment() {
+            // Validate payment details
+            const method = document.getElementById('paymentMethod').value;
+            let isValid = true;
+            
+            if (method === 'upi') {
+                const upiId = document.getElementById('upiId').value;
+                if (!upiId || !upiId.includes('@')) {
+                    alert('Please enter a valid UPI ID (e.g., yourname@upi)');
+                    isValid = false;
+                }
+            }
+            
+            if (!isValid) return;
+            
+            // Razorpay integration
+            var options = {
+                "key": "rzp_test_RyiMGZV8RZr4Ja", // Your Razorpay key
+                "amount": "96900", // Amount in paise (969 * 100)
+                "currency": "INR",
+                "name": "DOZON.XYZ",
+                "description": "Lifetime Game Access",
+                "handler": async function (response) {
+                    // Payment successful
+                    if (currentUser) {
+                        const { error } = await supabase
+                            .from('profiles')
+                            .update({ is_paid: true })
+                            .eq('id', currentUser.id);
+
+                        if (!error) {
+                            userPaid = true;
+                            totalPaid += 969;
+                            updateStats();
+                            updateGameAccess();
+                            initializeGameElements();
+                            document.getElementById('paymentSuccessModal').style.display = 'flex';
+                        }
+                    }
+                },
+                "prefill": {
+                    "name": userProfile ? userProfile.username : "User",
+                    "email": currentUser ? currentUser.email : "user@dozon.xyz"
+                },
+                "theme": {
+                    "color": "#8F00FF"
+                }
+            };
+            
+            var rzp = new Razorpay(options);
+            rzp.open();
+        }
+
+        function showExitModal() {
+            if (confirm('Are you sure you want to reset everything? This will also reset your payment status.')) {
+                resetGame();
+                currentUser = null;
+                userPaid = false;
+                userProfile = null;
+                totalPlayers = 0;
+                totalScenes = 0;
+                totalPaid = 0;
+                updateStats();
+                updateGameAccess();
+                switchPanel('welcome');
+            }
+        }
+
+        // Utility functions
+        function shuffle(array) {
+            return [...array].sort(() => Math.random() - 0.5);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Background canvas
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function initCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            // Create particles
+            for (let i = 0; i < 60; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    size: Math.random() * 2 + 1,
+                    color: Math.random() > 0.5 ? 'rgba(0, 255, 0, 0.2)' : 'rgba(143, 0, 255, 0.2)'
+                });
+            }
+            
+            drawBackground();
+        }
+
+        function drawBackground() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Update and draw particles
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                
+                // Bounce off edges
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+                
+                // Draw particle
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Draw connections
+                particles.forEach(other => {
+                    const dx = p.x - other.x;
+                    const dy = p.y - other.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 100) {
+                        ctx.strokeStyle = 'rgba(0, 255, 0, 0.1)';
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(other.x, other.y);
+                        ctx.stroke();
+                    }
+                });
+            });
+            
+            requestAnimationFrame(drawBackground);
+        }
+
+        // Update time
+        function updateTime() {
+            setInterval(() => {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString([], { hour12: false });
+                document.getElementById('liveTime').textContent = timeStr;
+            }, 1000);
+        }
+
+        // Update stats
+        function updateStats() {
+            document.getElementById('livePlayers').textContent = totalPlayers;
+            document.getElementById('liveScenes').textContent = totalScenes;
+            document.getElementById('livePaid').textContent = totalPaid;
+            document.getElementById('playerCount').textContent = players.length;
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            initCanvas();
+        });
+    </script>
+</body>
+</html>
