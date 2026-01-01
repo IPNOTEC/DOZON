@@ -1,17 +1,11 @@
-<!-- IPNOTEC GAME v1.0.0 | PROD FREEZE | DO NOT MODIFY WITHOUT VERSION BUMP -->
-
 <!DOCTYPE html>
 <html lang="en">
-    <!-- Supabase SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IPNOTEC | DOZON.XYZ Game Arena</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <style>
         :root {
             /* DOZON Color Scheme */
@@ -921,6 +915,10 @@
             }
         }
     </style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 </head>
 <body>
     <!-- Animated Background -->
@@ -1414,27 +1412,6 @@
     </div>
 
     <script>
-        // Supabase Configuration
-        const SUPABASE_URL = 'https://yiswabyzohapwyddiufg.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_dBQgmJYXlzpTL7z2-Ai6Pw_yh79rxO1';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script>
-const supabase = supabase.createClient(
-  "YOUR_SUPABASE_URL",
-  "YOUR_SUPABASE_ANON_KEY"
-);
-</script>
-/***** SUPABASE INIT *****/
-const SUPABASE_URL = "PASTE_YOUR_URL_HERE";
-const SUPABASE_ANON_KEY = "PASTE_YOUR_KEY_HERE";
-
-const supabase = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
-
         /***** GAME STATE *****/
         let players = [];
         let currentScene = null;
@@ -1482,34 +1459,7 @@ const supabase = window.supabase.createClient(
             
             // Initialize game panel based on payment status
             updateGameAccess();
-            
-            // Check if user is already logged in
-            checkSession();
         });
-
-        // Check Supabase session
-        async function checkSession() {
-            const { data } = await supabase.auth.getSession();
-            if (data.session) {
-                currentUser = data.session.user;
-                await loadUserData();
-            }
-        }
-
-        // Load user data from Supabase
-        async function loadUserData() {
-            const { data: profile } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', currentUser.id)
-                .single();
-            
-            if (profile) {
-                userProfile = profile;
-                userPaid = profile.is_paid || false;
-                updateGameAccess();
-            }
-        }
 
         // Update game access based on payment
         function updateGameAccess() {
@@ -1628,7 +1578,7 @@ const supabase = window.supabase.createClient(
             });
 
             // Profile elements
-            document.getElementById('saveProfile').addEventListener('click', async () => {
+            document.getElementById('saveProfile').addEventListener('click', () => {
                 const gender = document.getElementById('userGender').value;
                 const age = document.getElementById('userAge').value;
                 const bodyType = document.getElementById('userBodyType').value;
@@ -1641,43 +1591,28 @@ const supabase = window.supabase.createClient(
                     return;
                 }
 
-                // Save to Supabase if user is logged in
-                if (currentUser) {
-                    const { error } = await supabase
-                        .from('profiles')
-                        .update({
-                            gender: gender,
-                            age: age,
-                            body_type: bodyType,
-                            purpose: purpose,
-                            interests: interests,
-                            personality: personality
-                        })
-                        .eq('id', currentUser.id);
-
-                    if (error) {
-                        alert('Error saving profile: ' + error.message);
-                        return;
-                    }
-                }
-
                 userProfile = { gender, age, bodyType, purpose, interests, personality };
                 alert('Profile saved successfully! Proceeding to payment...');
                 switchPanel('payment');
             });
+
+            // Game elements (only initialize if paid)
+            if (userPaid) {
+                initializeGameElements();
+            }
 
             // Payment elements
             document.getElementById('paymentMethod').addEventListener('change', updatePaymentDetails);
             document.getElementById('processPayment').addEventListener('click', processPayment);
             document.getElementById('paymentSuccessClose').addEventListener('click', () => {
                 document.getElementById('paymentSuccessModal').style.display = 'none';
+                userPaid = true;
+                totalPaid += 969;
+                updateStats();
+                updateGameAccess();
+                initializeGameElements();
                 switchPanel('game');
             });
-
-            // Initialize game elements if paid
-            if (userPaid) {
-                initializeGameElements();
-            }
 
             // Initialize player list
             renderPlayerList();
@@ -1738,7 +1673,7 @@ const supabase = window.supabase.createClient(
         }
 
         // Game functions
-        async function savePlayer() {
+        function savePlayer() {
             if (!userPaid) {
                 alert('Payment required to save players');
                 return;
@@ -1757,61 +1692,20 @@ const supabase = window.supabase.createClient(
             
             const existingIndex = players.findIndex(p => p.name.toLowerCase() === name.toLowerCase());
             
-            // Save to Supabase if user is logged in
-            if (currentUser) {
-                const playerData = {
-                    user_id: currentUser.id,
-                    name: name,
-                    gender: gender,
-                    do_actions: doActions,
-                    dont_rules: dontRules,
-                    points: 0
+            if (existingIndex !== -1) {
+                players[existingIndex] = { 
+                    name, gender, doActions, dontRules, 
+                    points: players[existingIndex].points || 0, 
+                    performing: false 
                 };
-                
-                if (existingIndex !== -1) {
-                    // Update existing player
-                    const { error } = await supabase
-                        .from('players')
-                        .update(playerData)
-                        .eq('id', players[existingIndex].id);
-                    
-                    if (!error) {
-                        players[existingIndex] = { ...players[existingIndex], ...playerData };
-                    }
-                } else {
-                    if (players.length >= 12) {
-                        alert('Maximum 12 players allowed');
-                        return;
-                    }
-                    
-                    const { data, error } = await supabase
-                        .from('players')
-                        .insert([playerData])
-                        .select();
-                    
-                    if (!error && data && data.length > 0) {
-                        players.push({ id: data[0].id, ...playerData });
-                        totalPlayers++;
-                        updateStats();
-                    }
-                }
             } else {
-                // Local storage fallback
-                if (existingIndex !== -1) {
-                    players[existingIndex] = { 
-                        name, gender, doActions, dontRules, 
-                        points: players[existingIndex].points || 0, 
-                        performing: false 
-                    };
-                } else {
-                    if (players.length >= 12) {
-                        alert('Maximum 12 players allowed');
-                        return;
-                    }
-                    players.push({ name, gender, doActions, dontRules, points: 0, performing: false });
-                    totalPlayers++;
-                    updateStats();
+                if (players.length >= 12) {
+                    alert('Maximum 12 players allowed');
+                    return;
                 }
+                players.push({ name, gender, doActions, dontRules, points: 0, performing: false });
+                totalPlayers++;
+                updateStats();
             }
             
             renderPlayerList();
@@ -1860,22 +1754,7 @@ const supabase = window.supabase.createClient(
             document.getElementById('playerCount').textContent = players.length;
         }
 
-        async function removePlayer(name) {
-            const playerToRemove = players.find(p => p.name === name);
-            
-            if (playerToRemove && playerToRemove.id && currentUser) {
-                // Remove from Supabase
-                const { error } = await supabase
-                    .from('players')
-                    .delete()
-                    .eq('id', playerToRemove.id);
-                
-                if (error) {
-                    alert('Error removing player: ' + error.message);
-                    return;
-                }
-            }
-            
+        function removePlayer(name) {
             players = players.filter(p => p.name !== name);
             renderPlayerList();
             updatePointsTable();
@@ -2000,7 +1879,7 @@ const supabase = window.supabase.createClient(
             updateTimerDisplay();
         }
 
-        async function endScene() {
+        function endScene() {
             if (timerInterval) {
                 clearInterval(timerInterval);
                 timerInterval = null;
@@ -2019,18 +1898,6 @@ const supabase = window.supabase.createClient(
                 player.performing = false;
                 summary.push({ name, choice, points });
             });
-            
-            // Update points in Supabase
-            if (currentUser) {
-                for (const player of players) {
-                    if (player.id) {
-                        await supabase
-                            .from('players')
-                            .update({ points: player.points })
-                            .eq('id', player.id);
-                    }
-                }
-            }
             
             renderPlayerList();
             updatePointsTable();
@@ -2117,98 +1984,41 @@ const supabase = window.supabase.createClient(
         }
 
         // Account functions
-        async function handleRegister() {
-  const username = document.getElementById("registerUsername").value.trim();
-  const password = document.getElementById("registerPassword").value;
-  const confirm = document.getElementById("registerConfirmPassword").value;
-
-  if (!username || !password) {
-    alert("Username & password required");
-    return;
-  }
-
-  if (password !== confirm) {
-    alert("Passwords do not match");
-    return;
-  }
-
-  const { data, error } = await supabase.auth.signUp({
-    email: `${username}@dozon.xyz`,
-    password
-  });
-
-  if (error) {
-    alert(error.message);
-    return;
-  }
-
-  await supabase.from("profiles").insert({
-    id: data.user.id,
-    username
-  });
-
-  currentUser = data.user;
-  alert("Account created. Please login.");
-}
-async function handleLogin() {
-  const username = document.getElementById("loginUsername").value.trim();
-  const password = document.getElementById("loginPassword").value;
-
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email: `${username}@dozon.xyz`,
-    password
-  });
-
-  if (error) {
-    alert("Invalid login");
-    return;
-  }
-
-  currentUser = data.user;
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", currentUser.id)
-    .single();
-
-  userPaid = profile.paid;
-  updateGameAccess();
-  switchPanel("profile");
-}
-
+        function handleLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
             
-            // Check if username exists
-            const { data: existingUser } = await supabase
-                .from('profiles')
-                .select('username')
-                .eq('username', username)
-                .single();
-
-            if (existingUser) {
-                alert('Username already taken!');
+            if (!username || !password) {
+                alert('Please enter both username and password');
                 return;
             }
+            
+            currentUser = username;
+            alert(`Welcome back, ${username}!`);
+            switchPanel('profile');
+        }
 
-            // Create Auth User
-            const { data, error } = await supabase.auth.signUp({
-                email: `${username}@dozon.xyz`,
-                password: password,
-            });
-
-            if (error) {
-                alert('Registration failed: ' + error.message);
+        function handleRegister() {
+            const username = document.getElementById('registerUsername').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            
+            if (!username || !password) {
+                alert('Please enter both username and password');
                 return;
             }
-
-            // Create Profile Record
-            await supabase.from('profiles').insert([
-                { id: data.user.id, username: username, is_paid: false }
-            ]);
-
-            currentUser = data.user;
-            userProfile = { username: username, is_paid: false };
             
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            if (password.length < 6) {
+                alert('Password must be at least 6 characters long');
+                return;
+            }
+            
+            currentUser = username;
             alert(`Account created successfully! Welcome to DOZON.XYZ, ${username}!`);
             
             document.getElementById('registerForm').style.display = 'none';
@@ -2266,42 +2076,10 @@ async function handleLogin() {
             
             if (!isValid) return;
             
-            // Razorpay integration
-            var options = {
-                "key": "rzp_test_RyiMGZV8RZr4Ja", // Your Razorpay key
-                "amount": "96900", // Amount in paise (969 * 100)
-                "currency": "INR",
-                "name": "DOZON.XYZ",
-                "description": "Lifetime Game Access",
-                "handler": async function (response) {
-                    // Payment successful
-                    if (currentUser) {
-                        const { error } = await supabase
-                            .from('profiles')
-                            .update({ is_paid: true })
-                            .eq('id', currentUser.id);
-
-                        if (!error) {
-                            userPaid = true;
-                            totalPaid += 969;
-                            updateStats();
-                            updateGameAccess();
-                            initializeGameElements();
-                            document.getElementById('paymentSuccessModal').style.display = 'flex';
-                        }
-                    }
-                },
-                "prefill": {
-                    "name": userProfile ? userProfile.username : "User",
-                    "email": currentUser ? currentUser.email : "user@dozon.xyz"
-                },
-                "theme": {
-                    "color": "#8F00FF"
-                }
-            };
-            
-            var rzp = new Razorpay(options);
-            rzp.open();
+            // Simulate payment processing
+            setTimeout(() => {
+                document.getElementById('paymentSuccessModal').style.display = 'flex';
+            }, 1000);
         }
 
         function showExitModal() {
@@ -2414,5 +2192,111 @@ async function handleLogin() {
             initCanvas();
         });
     </script>
+
+<script>
+/* ================= BACKEND INTEGRATION ================= */
+
+const SUPABASE_URL = "https://lvydesycjsdgtviwtrkm.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_Hu4trT5Xn_Z0X53SiR6mRg_MUcr0n2X";
+const RAZORPAY_KEY = "rzp_test_RyiMGZV8RZr4Ja";
+const PAYMENT_AMOUNT = 96900; // in paise
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let currentUser = null;
+let userPaid = false;
+
+/* -------- AUTH -------- */
+
+async function handleRegister() {
+  const u = document.getElementById("registerUsername").value.trim();
+  const p = document.getElementById("registerPassword").value;
+  const c = document.getElementById("registerConfirmPassword").value;
+
+  if (!u || !p || p !== c) {
+    alert("Invalid registration details");
+    return;
+  }
+
+  const { data, error } = await supabase.auth.signUp({
+    email: u + "@ipnotec.app",
+    password: p
+  });
+
+  if (error) { alert(error.message); return; }
+
+  await supabase.from("profiles").insert({
+    id: data.user.id,
+    username: u,
+    paid: false
+  });
+
+  alert("Registered successfully. Please login.");
+}
+
+async function handleLogin() {
+  const u = document.getElementById("loginUsername").value.trim();
+  const p = document.getElementById("loginPassword").value;
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: u + "@ipnotec.app",
+    password: p
+  });
+
+  if (error) { alert("Login failed"); return; }
+
+  currentUser = data.user;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("paid")
+    .eq("id", currentUser.id)
+    .single();
+
+  userPaid = profile?.paid || false;
+  updateGameAccess();
+}
+
+/* -------- PAYMENT -------- */
+
+function startPayment() {
+  if (!currentUser) {
+    alert("Please login first");
+    return;
+  }
+
+  const options = {
+    key: RAZORPAY_KEY,
+    amount: PAYMENT_AMOUNT,
+    currency: "INR",
+    name: "IPNOTEC",
+    description: "Game Access Pass",
+    handler: async function () {
+      await supabase
+        .from("profiles")
+        .update({ paid: true })
+        .eq("id", currentUser.id);
+
+      userPaid = true;
+      updateGameAccess();
+      alert("Payment successful. Game unlocked!");
+    }
+  };
+
+  new Razorpay(options).open();
+}
+
+/* -------- ACCESS CONTROL -------- */
+
+function updateGameAccess() {
+  if (userPaid) {
+    document.body.classList.add("paid-user");
+  } else {
+    document.body.classList.remove("paid-user");
+  }
+}
+
+/* ================= END ================= */
+</script>
+
 </body>
 </html>
